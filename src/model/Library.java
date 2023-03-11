@@ -1,6 +1,6 @@
 package model;
 
-public class Book {
+public class Library {
     private int id;
     private String name;
     private String author;
@@ -9,13 +9,9 @@ public class Book {
     private String language;
     private int price;
     private int count;
-    private boolean stockStatus;
+    private int stockStatus;
 
-    public Book() {
-        ++this.id;
-    }
-
-    public Book(int id, String name, String author, String genre, int pageCount, String language, int price, int count, boolean stockStatus) {
+    public Library(int id, String name, String author, String genre, int pageCount, String language, int price, int count, int stockStatus) {
         this.id = id;
         this.name = name;
         this.author = author;
@@ -25,6 +21,9 @@ public class Book {
         this.price = price;
         this.count = count;
         this.stockStatus = stockStatus;
+    }
+
+    public Library() {
     }
 
     public int getId() {
@@ -87,29 +86,32 @@ public class Book {
         this.count = count;
     }
 
-    public boolean isStockStatus() {
+    public int getStockStatus() {
         return stockStatus;
     }
 
-    public void setStockStatus(boolean stockStatus) {
+    public void setStockStatus(int stockStatus) {
         this.stockStatus = stockStatus;
     }
 
-    @Override
-    public String toString() {
-        return "Name: " + getName() +
+    public String shortInfo() {
+        return "Id: " + getId() +
+                "\nName: " + getName() +
                 "\nAuthor: " + getAuthor() +
                 "\nGenre: " + getGenre() +
-                "\nPage count: " + getPageCount() +
+                "\nLanguage: " + getLanguage();
+    }
+
+
+    @Override
+    public String toString() {
+        return "Id: " + getId() +
+                "\nName: " + getName() +
+                "\nAuthor: " + getAuthor() +
+                "\nGenre: " + getGenre() +
+                "\nPageCount: " + getPageCount() +
                 "\nLanguage: " + getLanguage() +
                 "\nPrice: " + getPrice() +
                 "\nCount: " + getCount();
-    }
-
-    public String getList() {
-     return "Name: " + getName() +
-            "\nAuthor: " + getAuthor() +
-            "\nGenre: " + getGenre() +
-             "\nLanguage: " + getLanguage();
     }
 }

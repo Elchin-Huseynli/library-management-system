@@ -1,7 +1,10 @@
 package global;
 
-import model.Book;
+import model.Library;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class GlobalData {
-    public static Book[] books;
+    public static List<Library> libraryList = new LinkedList<>();
 }

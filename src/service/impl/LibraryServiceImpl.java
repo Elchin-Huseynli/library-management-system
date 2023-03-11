@@ -1,189 +1,188 @@
 package service.impl;
 
-import global.GlobalData;
-import model.Book;
+import static global.GlobalData.libraryList;
+
+import enums.SuccessMessageEnum;
+import exceptions.BookNotFoundExceptions;
+import exceptions.InvalidIdExceptions;
+import exceptions.InvalidOptionExceptions;
+import exceptions.InvalidParameterExceptions;
+import model.Library;
 import service.LibraryService;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-import java.time.LocalDateTime;
-
-import static service.impl.LibraryServiceHelp.*;
 import static util.InputUtil.*;
+import static util.MenuUtil.searchEntry;
+import static util.MenuUtil.*;
+import static helper.LibraryServiceHelper.*;
 
 public class LibraryServiceImpl implements LibraryService {
     @Override
     public void register() {
         int count = inputTypeInt("How many book register: ");
-        if (GlobalData.books != null) {
-            Book[] tempBooks = GlobalData.books;
-            GlobalData.books = new Book[count + tempBooks.length];
-
-            for (int i = 0, k = 0; i < GlobalData.books.length; i++) {
-                if (i < tempBooks.length) {
-                    GlobalData.books[i] = tempBooks[i];
-                }
-                else {
-                    System.out.println("-------------------");
-                    System.out.println(++k + ". Book");
-                    GlobalData.books[i] = fillBook();
-                    System.out.println("-------------------");
-                }
-            }
+        for (int i = 0; i < count; i++) {
+            System.out.println(i+1 + ". Book");
+            libraryList.add(fillLibrary());
         }
-        else {
-            GlobalData.books = new Book[count];
-
-            for (int i = 0; i < count; i++) {
-                System.out.println("-------------------");
-                System.out.println(i+1 + ". Book");
-                GlobalData.books[i] = fillBook();
-                System.out.println("-------------------");
-            }
-        }
-        System.out.println("\nREGISTER_SUCCESSFULLY");
-        System.out.println("Total book: " + GlobalData.books.length + "\n");
-
+        System.out.println("\n" + SuccessMessageEnum.REGISTER_SUCCESSFULLY);
     }
 
     @Override
-    public void show() {
-        if (GlobalData.books == null || GlobalData.books.length == 0) {
-            System.out.println("Book not found!");
+    public void show() throws BookNotFoundExceptions, InvalidOptionExceptions {
+        if (libraryList==null || libraryList.size()==0) {
+            throw new BookNotFoundExceptions();
         }
         else {
-            for (int i = 0; i < GlobalData.books.length; i++) {
-                System.out.println("-------------------");
-                System.out.println(i+1 + ". Book");
-                System.out.println(GlobalData.books[i]);
-                System.out.println("-------------------");
+            int option = showEntry();
+            if (option==1) {
+                int i = 1;
+                for (Library library : libraryList) {
+                    if (library.getStockStatus()==1) {
+                        System.out.println("-----------------");
+                        System.out.println(i++ + ". Book");
+                        System.out.println(library.shortInfo());
+                        System.out.println("-----------------");
+                    }
+                }
+
+                detailView();
+            }
+            else if (option==2) {
+                int i = 1;
+                for (Library library: libraryList) {
+                    System.out.println("-----------------");
+                    System.out.println(i++ + ". Book");
+                    System.out.println(library.shortInfo());
+                    System.out.println("-----------------");
+                }
+                detailView();
+            }
+            else {
+                throw new InvalidOptionExceptions();
             }
         }
     }
 
     @Override
-    public boolean update() {
-        boolean isUpdated = false;
-        if (GlobalData.books == null || GlobalData.books.length == 0) {
-            System.out.println("Book not found!");
+    public boolean update() throws BookNotFoundExceptions, InvalidParameterExceptions, InvalidIdExceptions {
+        boolean isUpdate = false;
+        if (libraryList==null || libraryList.size()==0) {
+            throw new BookNotFoundExceptions();
         }
         else {
             int id = inputTypeInt("Which book do you want to update: ");
-            for (int i = 0; i < GlobalData.books.length; i++) {
-                if (GlobalData.books[i].getId() == id) {
-                    String newParameter = inputTypeString("Which parameter you want to change: ");
-                    String[] newParameterArr = newParameter.toLowerCase().split(",");
-                    for (int j = 0; j < newParameterArr.length; j++) {
-                        if (newParameterArr[j].contains("name")) {
-                            GlobalData.books[i].setName(inputTypeString("Update name: "));
-                            isUpdated = true;
+            for (Library library : libraryList) {
+                if (id == library.getId()) {
+                    String parameters = inputTypeString("Which parameter you want to change: ");
+                    List<String> parametersList = new LinkedList<>();
+                    parametersList.add(Arrays.toString(parameters.split(",")));
+                    for (String i : parametersList) {
+                        if (i.contains("name")) {
+                            library.setName(inputTypeString("Update name: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("author")) {
-                            GlobalData.books[i].setAuthor(inputTypeString("Update author: "));
-                            isUpdated = true;
+                        if (i.contains("author")) {
+                            library.setAuthor(inputTypeString("Update author: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("genre")) {
-                            GlobalData.books[i].setGenre(inputTypeString("Update genre: "));
-                            isUpdated = true;
+                        if (i.contains("genre")) {
+                            library.setGenre(inputTypeString("Update genre: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("page count")) {
-                            GlobalData.books[i].setPageCount(inputTypeInt("Update page count: "));
-                            isUpdated = true;
+                        if (i.contains("page count")) {
+                            library.setPageCount(inputTypeInt("Update page count: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("language")) {
-                            GlobalData.books[i].setLanguage(inputTypeString("Update language: "));
-                            isUpdated = true;
+                        if (i.contains("language")) {
+                            library.setLanguage(inputTypeString("Update language: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("price")) {
-                            GlobalData.books[i].setPrice(inputTypeInt("Update price: "));
-                            isUpdated = true;
+                        if (i.contains("price")) {
+                            library.setPrice(inputTypeInt("Update price: "));
+                            isUpdate = true;
                         }
-                        if (newParameterArr[j].contains("count")) {
-                            GlobalData.books[i].setPrice(inputTypeInt("Update count: "));
-                            isUpdated = true;
-                        }
-                        if (newParameterArr[j].contains("stock status")) {
-                            GlobalData.books[i].setStockStatus(inputTypeBoolean("Update stock status: "));
-                            isUpdated = true;
+                        if (i.contains("count")) {
+                            library.setCount(inputTypeInt("Update count: "));
+                            isUpdate = true;
                         }
                     }
-                    if (isUpdated == true) {
-                        System.out.println("\nUPDATE_SUCCESSFULLY");
+                    if (isUpdate == true) {
+                        System.out.println("\n" + SuccessMessageEnum.UPDATE_SUCCESSFULLY);
                     }
                     else {
-                        System.out.println("Invalid parameter!");
+                        throw new InvalidParameterExceptions();
                     }
                 }
             }
-            if (isUpdated == false) {
-                System.out.println("Inalid id!");
+            if (isUpdate == false) {
+                throw new InvalidIdExceptions();
             }
         }
-        return isUpdated;
+        return isUpdate;
     }
 
     @Override
-    public boolean delete() {
-        boolean isDeleted = false;
-        if (GlobalData.books == null || GlobalData.books.length == 0) {
-            System.out.println("Book not found!");
+    public boolean delete() throws BookNotFoundExceptions, InvalidIdExceptions {
+        boolean isDelete = false;
+        if (libraryList==null || libraryList.size()==0) {
+            throw new BookNotFoundExceptions();
         }
         else {
             int id = inputTypeInt("Which book do you want to delete: ");
-            for (Book book : GlobalData.books) {
-                if (book.getId() == id) {
-                    Book[] tempBooks = GlobalData.books;
-                    GlobalData.books = new Book[tempBooks.length-1];
-                    int k = 0;
-                    for (Book tempBook : tempBooks) {
-                        if (tempBook.getId() == id) {
-                            continue;
-                        }
-                        GlobalData.books[k] = tempBook;
-                        k++;
-                    }
-                    isDeleted = true;
+            for (Library library : libraryList) {
+                if (id == library.getId()) {
+                    libraryList.remove(library);
+                    isDelete = true;
                 }
             }
-            if (isDeleted == true) {
-                System.out.println("\nDELETE_SUCCESSFULLY");
+            if (isDelete == true) {
+                System.out.println("\n" + SuccessMessageEnum.DELETE_SUCCESSFULLY);
             }
             else {
-                System.out.println("Invalid id!");
+                throw new InvalidIdExceptions();
             }
         }
-        return isDeleted;
+        return isDelete;
     }
 
     @Override
-    public void search() {
-        boolean isFind = false;
-        if (GlobalData.books == null || GlobalData.books.length == 0) {
-            System.out.println("Book not found!");
+    public void search() throws BookNotFoundExceptions, InvalidOptionExceptions {
+        if (libraryList == null || libraryList.size() == 0) {
+            throw new BookNotFoundExceptions();
+        } else {
+            int option = searchEntry();
+            switch (option){
+                case 1:
+                    nameSearch();
+                    break;
+                case 2:
+                    authorSearch();
+                    break;
+                case 3:
+                    genreSearch();
+                    break;
+                default:
+                    throw new InvalidOptionExceptions();
+
+            }
+        }
+    }
+
+    @Override
+    public void warehouseToStock() throws BookNotFoundExceptions {
+        if (libraryList==null || libraryList.size()==0) {
+            throw new BookNotFoundExceptions();
         }
         else {
-            System.out.println("[1]. Stock and warehouse" + "\n[2] Warehouse");
-            int option = inputTypeInt("Enter the option: ");
-            if (option==2) {
-                for (Book book: GlobalData.books) {
-                    if (book.isStockStatus()==false) {
-                        String name = inputTypeString("Enter the name: ");
-                        if (name.equals(book.getName())) {
-                            System.out.println("-------------------");
-                            System.out.println(book);
-                            System.out.println("-------------------");
-                        }
-                    }
-                }
-            }
-            else {
-                for (Book book: GlobalData.books) {
-                    String name = inputTypeString("Enter the name: ");
-                    if (name.equals(book.getName())) {
-                        System.out.println("-------------------");
-                        System.out.println(book);
-                        System.out.println("-------------------");
-                    }
+            int id  = inputTypeInt("Which book change status: ");
+            for (Library library : libraryList) {
+                if (id == library.getId() && library.getStockStatus()==0) {
+                    library.setStockStatus(1);
                 }
             }
         }
     }
+
 }
